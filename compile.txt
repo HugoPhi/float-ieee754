@@ -1,1 +1,0 @@
-gcc_riscv64 main.c ./src/asm_riscv/add.s ./src/asm_riscv/mult.s ./src/asm_riscv/divi.s ./src/c/interactor.c -o ./bin/main
