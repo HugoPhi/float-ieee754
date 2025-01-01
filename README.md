@@ -1,18 +1,11 @@
 # Float operations realized in RISC-V I32 assembly
 
-* [Float operations realized in RISC-V I32 assembly](#float-operations-realized-in-risc-v-i32-assembly)
-   * [简介](#简介)
-   * [1. 整体环境配置](#1-整体环境配置)
-   * [2. 编译环境搭建](#2-编译环境搭建)
-      * [2.1. 克隆项目](#21-克隆项目)
-      * [2.2. 下载子模块](#22-下载子模块)
-      * [2.3. 下载所需要的包](#23-下载所需要的包)
-      * [2.4. 添加环境变量](#24-添加环境变量)
-      * [2.5. 编译gcc](#25-编译gcc)
-      * [2.6. 编译仿真工具](#26-编译仿真工具)
-   * [3. 使用docker](#3-使用docker)
-   * [4. 编译运行项目](#3-运行)
-   * [5. 具体实现的简述](#5-具体实现的简述)
+* [简介](#简介)
+* [1. 整体环境配置](#1-整体环境配置)
+* [2. 编译环境搭建](#2-编译环境搭建)
+* [3. 使用docker](#3-使用docker)
+* [4. 编译运行项目](#3-运行)
+* [5. 具体实现的简述](#5-具体实现的简述)
 
 ## 简介
 
@@ -41,27 +34,27 @@
 
 1. 交互界面
 
-![](./assets/startPage.png)
+![](./assets/startPage-min.png)
 
 2. 输入float，转化出IEEE 754格式的二进制编码，以及其十六进制输出
 
-![](./assets/float2ieee754.png)
+![](./assets/float2ieee754-min.png)
 
 3. 输入两个float，输出加法结果
 
-![](./assets/addition.png)
+![](./assets/addition-min.png)
 
 4. 输入两个float，输出减法结果
 
-![](./assets/subtraction.png)
+![](./assets/subtraction-min.png)
 
 5. 输入两个float，输出乘法结果
 
-![](./assets/multiply.png)
+![](./assets/multiply-min.png)
 
 6. 输入两个float，输出除法结果
 
-![](./assets/division.png)
+![](./assets/division-min.png)
 
 另外，本项目是重庆大学计算机组成原理课程RISCV版的大作业。
 
@@ -137,7 +130,7 @@ make -j8  # 可以根据自己的硬件情况改变
 ```
 
 这样就是编译好了：
-![编译成功](./assets/compileSuccess.png)
+![编译成功](./assets/compileSuccess-min.png)
 
 或者查看是否已经可以运行如下命令：
 
@@ -261,10 +254,6 @@ qemu-riscv64 ./bin/main
 .
 ├── LICENSE
 ├── README.md
-├── assets
-│   ├── addition.png
-│   ├── float2ieee754.png
-│   └── startPage.png
 ├── bin
 │   └── main
 ├── Makefile
