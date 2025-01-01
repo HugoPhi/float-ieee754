@@ -1,18 +1,20 @@
 # Float operations realized in RISC-V I32 assembly
 
 * [Float operations realized in RISC-V I32 assembly](#float-operations-realized-in-risc-v-i32-assembly)
-   * [简介：](#简介)
-   * [1. 整体环境配置：](#1-整体环境配置)
+   * [简介](#简介)
+   * [1. 整体环境配置](#1-整体环境配置)
    * [2. 编译环境搭建](#2-编译环境搭建)
       * [2.1. 克隆项目](#21-克隆项目)
       * [2.2. 下载子模块](#22-下载子模块)
-      * [2.3. 下载所需要的包：](#23-下载所需要的包)
-      * [2.4. 添加环境变量：](#24-添加环境变量)
-      * [2.5. 编译gcc：](#25-编译gcc)
-      * [2.6. 编译仿真工具：](#26-编译仿真工具)
-   * [3. 运行](#3-运行)
+      * [2.3. 下载所需要的包](#23-下载所需要的包)
+      * [2.4. 添加环境变量](#24-添加环境变量)
+      * [2.5. 编译gcc](#25-编译gcc)
+      * [2.6. 编译仿真工具](#26-编译仿真工具)
+   * [3. 使用docker](#3-使用docker)
+   * [4. 编译运行项目](#3-运行)
+   * [5. 具体实现的简述](#5-具体实现的简述)
 
-## 简介：
+## 简介
 
 本项目旨在使用riscv-I32 ISA实现浮点数的加减乘除运算，同时为使用者提供交互界面。其中：
 
@@ -37,17 +39,35 @@
 
 以上就是该项目的大致内容，其运行图片如下：
 
+1. 交互界面
+
 ![](./assets/startPage.png)
+
+2. 输入float，转化出IEEE 754格式的二进制编码，以及其十六进制输出
+
+![](./assets/float2ieee754.png)
+
+3. 输入两个float，输出加法结果
 
 ![](./assets/addition.png)
 
-![](./assets/float2ieee754.png)
+4. 输入两个float，输出减法结果
+
+![](./assets/subtraction.png)
+
+5. 输入两个float，输出乘法结果
+
+![](./assets/multiply.png)
+
+6. 输入两个float，输出除法结果
+
+![](./assets/division.png)
 
 另外，本项目是重庆大学计算机组成原理课程RISCV版的大作业。
 
 
 
-## 1. 整体环境配置：
+## 1. 整体环境配置
 
 本实验的编译环境是搭载在Ubuntu22.04上的，可以使用wsl2进行平替，具体安装方法可以参照网上的相关博客，此处不赘述。同时，本项目不能使用root用户进行操作。在正式开始之前，请你确保你已经安装好git，gcc，make等常用工具，可以参考以下命令：
 
@@ -61,7 +81,8 @@ sudo apt install git make gcc
 
 ## 2. 编译环境搭建
 
-这里主要参考了这个项目：[riscv-collab/riscv-gnu-toolchain: GNU toolchain for RISC-V, including GCC (github.com)](https://github.com/riscv-collab/riscv-gnu-toolchain)，这个项目可以获得完整的riscv工具链。但是由于过程过于繁琐，以及该项目过于庞大（7个G以上，建议把wsl安装在磁盘剩余容量较大的地方，网上有教程【1】）。
+这里主要参考了这个项目：[riscv-collab/riscv-gnu-toolchain: GNU toolchain for RISC-V, including GCC (github.com)](https://github.com/riscv-collab/riscv-gnu-toolchain)，这个项目可以获得完整的riscv工具链。但是由于过程过于繁琐，以及该项目过于庞大（7个G以上，建议把wsl安装在磁盘剩余容量较大的地方，网上有教程【1】）。   
+另外，如果你不想手动搭建这个环境，你可以使用已经打包好的docker镜像搭配qemu，这是一种更好的选择。具体参看第三节[使用docker](#3-使用docker)。
 
 ### 2.1. 克隆项目
 
@@ -115,7 +136,10 @@ cd build
 make -j8  # 可以根据自己的硬件情况改变
 ```
 
-然后查看是否已经可以运行如下命令：
+这样就是编译好了：
+![编译成功](./assets/compileSuccess.png)
+
+或者查看是否已经可以运行如下命令：
 
 ```bash
 riscv64-unknown-elf-gcc -v
@@ -170,18 +194,34 @@ export RISCV=$HOME/riscvtools
 > export PATH=/opt/riscv/bin:$PATH
 > export RISCV=$HOME/riscvtools
 > ```
-> 
-> - 同时请你运行这个代码以保证程序成功运行：
-> 
-> ```bash
-> alias gcc_riscv64="riscv64-unknown-elf-gcc"
-> ```
 
+## 3. 使用docker
 
+如果你不想手动搭建环境，可以使用docker镜像搭配qemu，这是一种更好的选择。
 
+### 3.1. 拉取镜像创建实例
 
+```bash
+docker pull hugohahaha/riscv-tools
+```
 
-## 3. 运行
+创建实例：
+
+```bash
+docker create --name float-ieee754 -it hugohahaha/riscv-tools
+```
+
+### 3.2. 安装qemu-riscv64
+
+在ubuntu系统上，可以使用apt-get安装qemu-riscv64：
+
+```bash
+sudo apt install qemu-user-static
+```
+
+## 4. 运行
+
+### 4.1. 使用官方博客中提供的方式
 
 将编译器添加到环境变量，同时将"riscv64-unknown-elf-gcc"映射为"gcc-riscv64"（为了使命令更简单），然后我们回到含有main.c的路径下，先创建"./bin/"，然后运行如下指令：
 
@@ -189,7 +229,7 @@ export RISCV=$HOME/riscvtools
 make all
 ```
 
-即可在"./bin/"中生成可执行文件"main"。然后输入以下指令：
+即可在"./bin/"中生成可执行文件"main"。然后工程目录下输入以下指令：
 
 ```bash
 spike pk main
@@ -197,9 +237,23 @@ spike pk main
 
 即可运行程序。
 
+### 4.2. 使用qemu-riscv64
+
+同样地先进行编译：
+
+```bash
+make all
+```
+
+然后运行如下命令运行项目：
+
+```bash
+qemu-riscv64 ./bin/main
+```
 
 
-## 4. 具体实现的简述
+
+## 5. 具体实现的简述
 
 该项目的整体文件结构如下：
 

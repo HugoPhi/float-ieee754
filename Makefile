@@ -2,7 +2,7 @@
 TARGET = ./bin/main
 
 # 编译器
-CC = gcc_riscv64
+CC = riscv64-unknown-elf-gcc
 
 # 源文件
 SRC = main.c \

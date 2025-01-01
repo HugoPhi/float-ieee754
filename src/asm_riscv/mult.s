@@ -1,7 +1,7 @@
 .section .text
-.global multiply
+.global multi
 
-multiply:
+multi:
     # 获取a0和a1的指数和尾数
     li x29, 0x7F800000
     and x5, a0, x29  # 获得a0的指数

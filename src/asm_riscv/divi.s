@@ -1,7 +1,7 @@
 .section .text
-.global divide
+.global divi
 
-divide:
+divi:
     # 获取a0和a1的指数和尾数
     li x29, 0x7F800000
     and x5, a0, x29  # 获得a0的指数
@@ -22,21 +22,21 @@ divide:
     or x28, x28, x29 # 设置a1的隐藏位
 
     # 尾数除法使用加减交替法
-    li x29, 0xFFFFFFFF
     mv x30, zero       # 初始化商为0
     mv x31, zero       # 初始化余数为0
-    addi t0, zero, 24  # 循环次数
+    slli x31, x6, 8    # 将被除数左移8位以对齐
+
+    li t0, 24          # 循环次数
 
 div_loop:
     beqz t0, end_divide  # 循环结束
     slli x31, x31, 1     # 余数左移一位
-    or x31, x31, x6      # 将被除数的最高位加入余数
-    slli x6, x6, 1       # 被除数左移一位
-    sub x32, x31, x28    # 余数 - 除数
-    bltz x32, skip_subtract
-    add x30, x30, 1      # 商加1
-    mv x31, x32          # 更新余数
+    sltu t1, x31, x28    # 如果余数 < 除数，则跳过减法
+    bnez t1, skip_subtract
+    sub x31, x31, x28    # 余数 - 除数
+    ori x30, x30, 1      # 商加1
 skip_subtract:
+    slli x30, x30, 1     # 商左移一位
     addi t0, t0, -1      # 循环计数器减1
     j div_loop
 
@@ -65,6 +65,3 @@ overflow_divide:
 
 end_divide_final:
     ret
-
-
-
