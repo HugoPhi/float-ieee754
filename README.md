@@ -11,8 +11,6 @@
       * [2.5. 编译gcc：](#25-编译gcc)
       * [2.6. 编译仿真工具：](#26-编译仿真工具)
    * [3. 运行](#3-运行)
-   * [4. 具体实现的简述](#4-具体实现的简述)
-      * [4.1. 交互程序](#41-交互程序)
 
 ## 简介：
 
@@ -29,9 +27,9 @@
   
   - 输入两个float，输出减法结果
   
-  - 输入两个float，输出乘法结果（TODO）
+  - 输入两个float，输出乘法结果
   
-  - 输入两个float，输出除法结果（TODO）
+  - 输入两个float，输出除法结果（加减交替法）
   
   - Exit
   
@@ -188,10 +186,10 @@ export RISCV=$HOME/riscvtools
 将编译器添加到环境变量，同时将"riscv64-unknown-elf-gcc"映射为"gcc-riscv64"（为了使命令更简单），然后我们回到含有main.c的路径下，先创建"./bin/"，然后运行如下指令：
 
 ```bash
-gcc_riscv64 main.c ./src/asm_riscv/add.s ./src/asm_riscv/mult.s ./src/asm_riscv/divi.s ./src/c/interactor.c -o ./bin/main
+make all
 ```
 
-就是"compile.txt"中的命令，即可在"./bin/"中生成可执行文件"main"。然后输入以下指令：
+即可在"./bin/"中生成可执行文件"main"。然后输入以下指令：
 
 ```bash
 spike pk main
@@ -215,7 +213,7 @@ spike pk main
 │   └── startPage.png
 ├── bin
 │   └── main
-├── compile.txt
+├── Makefile
 ├── include
 │   └── headers.h
 ├── main.c
@@ -228,14 +226,4 @@ spike pk main
         └── interactor.c
 ```
 
-其中，main.c是整个程序的入口，include是所有所需的函数和全局变量的声明，src是汇编函数（加减乘除）和C函数（交互命令，浮点转化，输入输出）的源代码。其中，compile.txt是编译命令。
-
-### 4.1. 交互程序
-
-交互程序是由case语句完成，同时利用无限循环使得只有在选择页面选择"Exit"时推出程序。以下我们将介绍我们程序的实现：
-
-- 转换器：我们使用了C语言中Union的特性，简单地实现了该部分。我们先创建一个Union，然后
-
-
-
-
+其中，main.c是整个程序的入口，include是所有所需的函数和全局变量的声明，src是汇编函数（加减乘除）和C函数（交互命令，浮点转化，输入输出）的源代码。

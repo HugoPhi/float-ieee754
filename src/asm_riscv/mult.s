@@ -1,81 +1,65 @@
-    .section .text
-    .global multi
+.section .text
+.global multiply
 
-multi: 
+multiply:
+    # 获取a0和a1的指数和尾数
     li x29, 0x7F800000
-    and x5, a0, x29 #获得x的指数
-    and x7, a1, x29 #获得y的指数
+    and x5, a0, x29  # 获得a0的指数
+    and x7, a1, x29  # 获得a1的指数
     li x29, 0x007FFFFF
-    and x6 , a0, x29 #获得x的尾数
-    and x28, a1, x29 #获得y的尾数
-    # x5, x6 <= a0 ; x7, x28 <= a1
+    and x6, a0, x29  # 获得a0的尾数
+    and x28, a1, x29 # 获得a1的尾数
 
-    srli x29, x5, 23 #保存x的指数到低8位
-    srli x30, x7, 23 #保存y的指数到低8位
+    srli x5, x5, 23  # 移动指数到低8位
+    srli x7, x7, 23  # 移动指数到低8位
 
-    bge x29, x30, adjust_y  # if exp(x) >= exp(y), adjust y; else adjust x
+    add x5, x5, x7   # 新指数 = 指数1 + 指数2 - 偏置 (127)
+    addi x5, x5, -127
 
-adjust_x:
-    sub x31, x30, x29
-    #增加隐藏位
-    li x5, 0x00800000
+    # 设置隐藏位
+    li x29, 0x00800000
+    or x6, x6, x29  # 设置a0的隐藏位
+    or x28, x28, x29 # 设置a1的隐藏位
+
+    # 尾数相乘
+    mulh x30, x6, x28  # 高32位结果
+    mul x6, x6, x28     # 低32位结果
+
+    slli x30, x30, 1  # 左移一位以对齐
+    srli x6, x6, 23   # 右移23位以对齐
+    or x6, x6, x30    # 合并高32位和低32位
+
+    # 规格化
+    bltz x6, normalize_multiply  # 如果结果小于0，则需要规格化
+    j shift_multiply
+
+normalize_multiply:
+    slli x6, x6, 1  # 左移一位
+    addi x5, x5, -1 # 减少指数
+    bltz x6, normalize_multiply
+
+shift_multiply:
+    # 清除隐藏位
+    li x29, 0x007FFFFF
+    and x6, x6, x29
+
+    # 处理符号位
+    li x29, 0x80000000
+    and x29, x29, a0
+    xor x30, x29, a1
+    and x29, x29, x30
+    or x6, x6, x29
+
+    # 检查溢出
+    li x29, 0x000000FF
+    bgeu x5, x29, overflow_multiply
+    slli x5, x5, 23
     or x6, x6, x5
-    or x28, x28, x5
-    #y大，x移位
-    sra x6, x6, x31
-    add x31, x30, x0
-    #此时x30，x29可以自由存储
-    li x5, 0x80000000
-    and x29, a0, x5
-    j compare2
+    or a0, x6, x29
+    j end_multiply
 
-adjust_y:
-    sub x31, x29, x30
-    #增加隐藏位
-    li x7, 0x00800000
-    or x28, x28, x7
-    or x6, x6, x7
-    #x大，y移位
-    sra x28, x28, x31
-    add x31, x29, x0
-    #此时x29，x30可以自由存储
-    li x7, 0x80000000
-    and x30, a1, x7
-    j compare2
+overflow_multiply:
+    li a0, 0x7F800000
 
-compare2:  #比较绝对值大小，此时x为负，y为正
-    bge x6, x28, sub3
-    #x尾数大于y尾数，跳转sub3计算
-    j sub4
-
-sub1:  #x的符号为0，即x为正，y为负(x>=y)
-    sub x6, x6, x28
-    j mult_mant
-    #x6储存绝对值，x29储存符号，为正
-
-sub2:  #x的符号为0，即x为正，y为负(x<y)
-    sub x6, x28, x6
-    add x29, x30, x0
-    j mult_mant
-    #x6储存绝对值，x29储存符号，为负
-
-sub3:  #x的符号为1，即x为负，y为正(x>=y)
-    sub x6, x6, x28
-    j mult_mant
-    #x6储存绝对值，x29储存符号，为负
-
-sub4:  #x的符号为1，即x为负，y为正(x<y)
-    sub x6, x28, x6
-    add x29, x30, x0
-    j mult_mant
-    #x6储存绝对值，x29储存符号，为正
-
-mult_mant:
-    mul x6, x6, x28
-    # x6 <= x * y
-    j add
-
-add:  #x与y符号相同
-    add x6, x6, x28
-    j add
-    
+end_multiply:
+    ret
